@@ -1,0 +1,63 @@
+<html>
+	<link rel="stylesheet" type="text/css" media="screen" href="css/popup.css" />
+	
+	<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script> 
+	<script type="text/javascript" src="js/jquery.tmpl.min.js"></script> 
+	<script type="text/javascript" src="js/jquery.json-2.2.min.js"></script> 
+	<script>
+		var _data;
+		var _user;
+	
+		$(document).ready(function(){		
+			_data = $.parseJSON(localStorage["data"]);
+			_user = $.parseJSON(localStorage["user"]);
+			
+			if( _data.length > 20 ){
+				_data = _data.slice(0,20);
+			}
+			
+			_data = _data.sort(function(a,b){
+				return a.saved < b.saved;
+			});
+			
+			localStorage["newcounter"] = 0;
+			chrome.browserAction.setBadgeText({ text: "" });
+			chrome.browserAction.setTitle({ title: "Nothing new anymore.." });
+			
+			$( "#gaTemplate" ).tmpl( _data ).appendTo( "#list" );
+			
+			$("#creds").text(_user.points);
+			
+			$("a").live('click', function(){
+				chrome.tabs.create({'url': $(this).attr('href')});
+				window.close();
+			});
+		});
+	</script>
+
+	<body>
+		<script id="gaTemplate" type="text/x-jquery-tmpl">
+			{{if ended == 1}}
+				<div class="rounded padded sender" style="opacity: 0.3;">
+					<h1 style="margin-bottom: 0px; margin-top: 2px;"><a href="http://www.steamgifts.com${link}">${title}</a></h1>
+					<span>${cost}<span>
+					<div>Created by <a href="http://www.steamgifts.com${created_by_url}">${created_by_name}</a>.</div>
+					<div>${entries} and ${comments}</div>
+				</div>
+			{{else}}
+				<div class="rounded padded sender">
+					<h1 style="margin-bottom: 0px; margin-top: 2px;"><a href="http://www.steamgifts.com${link}">${title}</a> <sup style="font-size:12px;">(${cost})</sup></h1>
+					<span style="font-size: 16px;">Time left: <span>${time_left}</span></span>
+					<div>Created by <a href="http://www.steamgifts.com${created_by_url}" class="author">${created_by_name}</a> ${created} ago.</div>
+					<div style="font-size: 11px;">Giveaway has ${entries} and ${comments}.</div>
+				</div>
+			{{/if}}
+		</script>
+		
+		<h1 style="font-size: 16px;">Hi there! You have <b id="creds" class="author"></b>!</h1>
+		<h2 style="font-size:14px;">Here's latest giveaways to spend them:</h2>
+		<div id="list">
+			
+		</div>
+	</body>
+</html>

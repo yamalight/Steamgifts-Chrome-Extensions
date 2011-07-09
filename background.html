@@ -1,0 +1,110 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	
+		<title>Steamgifts - Background page</title>
+	
+		<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script> 
+		<script type="text/javascript" src="js/jquery.json-2.2.min.js"></script> 
+		<script>
+			var _defaultTimeout = 5 * 60 * 1000; // check every 5 minutes
+			var _timer;
+			
+			var _data;
+			var _savedIDs;
+			var _newCounter;
+			
+			var _user;
+			
+			
+			function init(){
+				chrome.browserAction.setBadgeText({ text: "..." });
+				chrome.browserAction.setTitle({ title: "Polling accounts..." });
+				
+				_user = {};
+				
+				_data = typeof localStorage["data"] == 'undefined' ? [] : $.parseJSON(localStorage["data"]);
+				_savedIDs = typeof localStorage["savedids"] == 'undefined' ? [] : $.parseJSON(localStorage["savedids"]);
+				_timer = setTimeout("checkDeals()", _defaultTimeout);
+				
+				checkDeals();
+			};
+			
+			function checkDeals(){
+				// create regex for IDs
+				var idReg = new RegExp("away/(.+?)/");
+				//var unReg = new RegExp("user/(.+)");
+				
+				// get page and parse
+				$.get('http://www.steamgifts.com/new', function(data){				
+					// get user data
+					// TODO: fetch username
+					//_user.name = $("a", $(".right ol", $(data))).attr('href');
+					if( typeof _user.point == "undefined" ){
+						_user.points = $("a", $( $(".right li", $(data))[6] ) ).text().replace(/[()]/g, "");
+						
+						localStorage["user"] = $.toJSON(_user);
+					}
+				
+					_newCounter = typeof localStorage["newcounter"] == 'undefined' ? [] : localStorage["newcounter"];
+					
+					// get giveaways
+					$(".post", $(data)).each(function(index,item){
+						var ga = {};
+						
+						// get basic info
+						ga.title = $(".title a", $(this)).text();
+						ga.link = $(".title a", $(this)).attr('href');
+						ga.id = idReg.exec(ga.link)[1];
+						
+						// check if already saved
+						if( _savedIDs.indexOf(ga.id) > -1 ){
+							return;
+						}
+						_savedIDs.push(ga.id);
+						
+						// continue data gathering
+						ga.cost = $( $("span", $(this))[1] ).text().replace(/[()]/g, "");
+						
+						if( ga.cost.indexOf("Ended") > -1 ){
+							ga.ended = 1;
+						}else{
+							ga.ended = 0;
+						}
+						
+						ga.created_by_name = $(".created_by a", $(this)).text();
+						ga.created_by_url = $(".created_by a", $(this)).attr('href');
+						ga.entries = $( $(".entries a", $(this))[0] ).text();
+						ga.comments = $( $(".entries a", $(this))[1] ).text();
+						
+						// TODO: convert to date objects
+						ga.time_left = $(".time_remaining strong", $(this)).text();
+						ga.created = $(".time_remaining span strong", $(this)).text();
+						
+						ga.saved = new Date().getTime();
+						
+						// add to global data arr & increase counter
+						_newCounter++;
+						_data.push(ga);
+					});
+					
+					if( _newCounter > 0 ){
+						chrome.browserAction.setBadgeText({ text: String(_newCounter) });
+						chrome.browserAction.setTitle({ title: "New giveaways available!" });
+					}else{
+						chrome.browserAction.setBadgeText({ text: "" });
+						chrome.browserAction.setTitle({ title: "Nothing new yet.." });
+					}
+					
+					localStorage["data"] = $.toJSON(_data);
+					localStorage["savedids"] = $.toJSON(_savedIDs);
+					localStorage["newcounter"] = _newCounter;
+				});
+			}
+		</script>
+	</head>
+	<body onload="init()">
+		<canvas id="canvas" width="19" height="19"></canvas>    
+		<img id="gfx" src="img/icon_32.png" alt="icon" />
+	</body>
+</html>

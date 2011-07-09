@@ -1,0 +1,16 @@
+{
+   "background_page": "background.html",
+   "browser_action": {
+      "default_icon": "icon.ico",
+      "default_title": "Steamgifts New Giveaways",
+      "popup": {
+         "path": "popup.html"
+      }
+   },
+   "description": "Steamgifts.com new giveaways notifier!",
+   "name": "Steamgifts notifier",   
+   "permissions": [
+     "http://www.steamgifts.com/*"
+   ],
+   "version": "1.0.0"
+}
