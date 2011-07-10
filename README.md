@@ -1,2 +1,5 @@
 This is an extension for Google Chrome browser for SteamGifts.com website.
-And at the moment I'm too lazy to write readme file :P
+
+# v1.0.1
+- creation and end time is now stored as js Date type
+- added UI sorting options

@@ -7,13 +7,19 @@
 		<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script> 
 		<script type="text/javascript" src="js/jquery.json-2.2.min.js"></script> 
 		<script>
+			// current version
+			var CURRENT_VERSION = "1.0.1";
+		
+			// work timer
 			var _defaultTimeout = 5 * 60 * 1000; // check every 5 minutes
 			var _timer;
 			
+			// data
 			var _data;
 			var _savedIDs;
 			var _newCounter;
 			
+			// user
 			var _user;
 			
 			
@@ -27,7 +33,7 @@
 				_savedIDs = typeof localStorage["savedids"] == 'undefined' ? [] : $.parseJSON(localStorage["savedids"]);
 				_timer = setTimeout("timedWork()", _defaultTimeout);
 				
-				checkDeals();
+				timedWork();
 			};
 			
 			function timedWork(){
