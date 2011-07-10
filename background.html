@@ -8,7 +8,7 @@
 		<script type="text/javascript" src="js/jquery.json-2.2.min.js"></script> 
 		<script>
 			// current version
-			var CURRENT_VERSION = "1.0.1";
+			var CURRENT_VERSION = "1.0.2";
 		
 			// work timer
 			var _defaultTimeout = 5 * 60 * 1000; // check every 5 minutes
@@ -25,27 +25,21 @@
 			
 			function init(){
 				chrome.browserAction.setBadgeText({ text: "..." });
-				chrome.browserAction.setTitle({ title: "Polling accounts..." });
-				
+				chrome.browserAction.setTitle({ title: "Initializing..." });
+			
 				_user = {};
 				
 				_data = typeof localStorage["data"] == 'undefined' ? [] : $.parseJSON(localStorage["data"]);
 				_savedIDs = typeof localStorage["savedids"] == 'undefined' ? [] : $.parseJSON(localStorage["savedids"]);
-				_timer = setTimeout("timedWork()", _defaultTimeout);
+				_timer = setTimeout("checkDeals()", _defaultTimeout);
 				
-				timedWork();
+				checkDeals();
 			};
 			
-			function timedWork(){
-				checkUpdate();
-				checkDeals();
-			}
-			
-			function checkUpdate(){
-				
-			}
-			
 			function checkDeals(){
+				chrome.browserAction.setBadgeText({ text: "..." });
+				chrome.browserAction.setTitle({ title: "Refreshing..." });
+			
 				// create regex for IDs
 				var idReg = new RegExp("away/(.+?)/");
 				//var unReg = new RegExp("user/(.+)");
@@ -64,7 +58,7 @@
 					_newCounter = typeof localStorage["newcounter"] == 'undefined' ? [] : localStorage["newcounter"];
 					
 					// get giveaways
-					$(".post", $(data)).each(function(index,item){
+					$(".post", data).each(function(index,item){
 						var ga = {};
 						
 						// get basic info
@@ -82,9 +76,7 @@
 						ga.cost = $( $("span", $(this))[1] ).text().replace(/[()]/g, "");
 						
 						if( ga.cost.indexOf("Ended") > -1 ){
-							ga.ended = 1;
-						}else{
-							ga.ended = 0;
+							return;
 						}
 						
 						ga.created_by_name = $(".created_by a", $(this)).text();
@@ -94,13 +86,13 @@
 						
 						// Save time left as date-time
 						var time_left = $( $(".time_remaining > strong", $(this))[0] ).text();
-						ga.time_left = stringToDate(time_left, false);
+						ga.time_left = stringToDate(time_left, false)+(index*1000);
 						ga.end_date = new Date(ga.time_left).toLocaleTimeString() + ", " + new Date(ga.time_left).toLocaleDateString();
 						
 						// Save time created as date-time
 						//console.log( $(".time_remaining > span > strong", $(this)) );
 						var created = $(".time_remaining > span > strong", $(this)).text();
-						ga.time_created = stringToDate(created, true);
+						ga.time_created = stringToDate(created, true)+(index*1000);
 						ga.created_date = new Date(ga.time_created).toLocaleTimeString() + ", " + new Date(ga.time_created).toLocaleDateString();
 						
 						ga.saved = new Date().getTime();
