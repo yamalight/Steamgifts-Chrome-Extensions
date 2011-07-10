@@ -7,53 +7,98 @@
 	<script>
 		var _data;
 		var _user;
+		var _sortOn = "newest";
 	
 		$(document).ready(function(){		
 			_data = $.parseJSON(localStorage["data"]);
 			_user = $.parseJSON(localStorage["user"]);
 			
+			// resort
+			if( typeof localStorage['sort'] == 'undefined' ){
+				localStorage['sort'] = _sortOn;
+			}else{
+				_sortOn = localStorage['sort'] ;
+			}
+			if( _sortOn == "ending" ){
+				resortByEnd();
+			}else{
+				resortByNew();
+			}
+			
+			// trim to 20 last
 			if( _data.length > 20 ){
 				_data = _data.slice(0,20);
 			}
 			
-			_data = _data.sort(function(a,b){
-				return a.saved < b.saved;
-			});
-			
+			// reset counter
 			localStorage["newcounter"] = 0;
 			chrome.browserAction.setBadgeText({ text: "" });
 			chrome.browserAction.setTitle({ title: "Nothing new anymore.." });
 			
+			// render data
 			$( "#gaTemplate" ).tmpl( _data ).appendTo( "#list" );
-			
 			$("#creds").text(_user.points);
 			
-			$("a").live('click', function(){
+			// set external click handler
+			$("a.external").live('click', function(){
 				chrome.tabs.create({'url': $(this).attr('href')});
 				window.close();
 			});
+			
+			// resort handlers
+			$("#newest").click(function(){
+				resortByNew();
+				
+				$( "#list" ).empty();
+				$( "#gaTemplate" ).tmpl( _data ).appendTo( "#list" );
+			});
+			$("#ending").click(function(){
+				resortByEnd();
+				
+				$( "#list" ).empty();
+				$( "#gaTemplate" ).tmpl( _data ).appendTo( "#list" );
+			});
+			
 		});
+		
+		function resortByNew(){
+			localStorage['sort'] = "newest";
+		
+			$("#newest").addClass("selected");
+			$("#ending").removeClass("selected");
+		
+			_data = _data.sort(function(a,b){
+				return a.time_created < b.time_created;
+			});
+		}
+		
+		function resortByEnd(){
+			localStorage['sort'] = "ending";
+		
+			$("#ending").addClass("selected");
+			$("#newest").removeClass("selected");
+		
+			_data = _data.sort(function(a,b){
+				if( isNaN(b.time_left) ) return true;
+				if( isNaN(a.time_left) ) return false;
+				return a.time_left > b.time_left;
+			});
+		}
 	</script>
 
 	<body>
 		<script id="gaTemplate" type="text/x-jquery-tmpl">
-			{{if ended == 1}}
-				<div class="rounded padded sender" style="opacity: 0.3;">
-					<h1 style="margin-bottom: 0px; margin-top: 2px;"><a href="http://www.steamgifts.com${link}">${title}</a></h1>
-					<span>${cost}<span>
-					<div>Created by <a href="http://www.steamgifts.com${created_by_url}">${created_by_name}</a>.</div>
-					<div>${entries} and ${comments}</div>
-				</div>
-			{{else}}
+			{{if ended != 1}}
 				<div class="rounded padded sender">
-					<h1 style="margin-bottom: 0px; margin-top: 2px;"><a href="http://www.steamgifts.com${link}">${title}</a> <sup style="font-size:12px;">(${cost})</sup></h1>
-					<span style="font-size: 16px;">Time left: <span>${time_left}</span></span>
-					<div>Created by <a href="http://www.steamgifts.com${created_by_url}" class="author">${created_by_name}</a> ${created} ago.</div>
+					<h1 style="margin-bottom: 0px; margin-top: 2px;"><a class="external" href="http://www.steamgifts.com${link}">${title}</a> <sup style="font-size:12px;">(${cost})</sup></h1>
+					<span style="font-size: 16px;">Ends: <span>${end_date}</span></span>
+					<div>Created by <a class="external" href="http://www.steamgifts.com${created_by_url}" class="author">${created_by_name}</a>, at ${created_date}</div>
 					<div style="font-size: 11px;">Giveaway has ${entries} and ${comments}.</div>
 				</div>
 			{{/if}}
 		</script>
 		
+		<div style="position: absolute; right: 10px; top: 10px; font-size: 10px;">First show: <a href="#" id="newest" class="selected">newest</a> | <a href="#" id="ending">ending soon</a></div>
 		<h1 style="font-size: 16px;">Hi there! You have <b id="creds" class="author"></b>!</h1>
 		<h2 style="font-size:14px;">Here's latest giveaways to spend them:</h2>
 		<div id="list">

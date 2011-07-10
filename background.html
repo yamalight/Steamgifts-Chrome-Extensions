@@ -25,10 +25,19 @@
 				
 				_data = typeof localStorage["data"] == 'undefined' ? [] : $.parseJSON(localStorage["data"]);
 				_savedIDs = typeof localStorage["savedids"] == 'undefined' ? [] : $.parseJSON(localStorage["savedids"]);
-				_timer = setTimeout("checkDeals()", _defaultTimeout);
+				_timer = setTimeout("timedWork()", _defaultTimeout);
 				
 				checkDeals();
 			};
+			
+			function timedWork(){
+				checkUpdate();
+				checkDeals();
+			}
+			
+			function checkUpdate(){
+				
+			}
 			
 			function checkDeals(){
 				// create regex for IDs
@@ -77,9 +86,16 @@
 						ga.entries = $( $(".entries a", $(this))[0] ).text();
 						ga.comments = $( $(".entries a", $(this))[1] ).text();
 						
-						// TODO: convert to date objects
-						ga.time_left = $(".time_remaining strong", $(this)).text();
-						ga.created = $(".time_remaining span strong", $(this)).text();
+						// Save time left as date-time
+						var time_left = $( $(".time_remaining > strong", $(this))[0] ).text();
+						ga.time_left = stringToDate(time_left, false);
+						ga.end_date = new Date(ga.time_left).toLocaleTimeString() + ", " + new Date(ga.time_left).toLocaleDateString();
+						
+						// Save time created as date-time
+						//console.log( $(".time_remaining > span > strong", $(this)) );
+						var created = $(".time_remaining > span > strong", $(this)).text();
+						ga.time_created = stringToDate(created, true);
+						ga.created_date = new Date(ga.time_created).toLocaleTimeString() + ", " + new Date(ga.time_created).toLocaleDateString();
 						
 						ga.saved = new Date().getTime();
 						
@@ -101,10 +117,42 @@
 					localStorage["newcounter"] = _newCounter;
 				});
 			}
+			
+			function stringToDate(timeStr, sub){
+				var tr = new RegExp(/(\d\d?) hour|(\d\d?) minut|(\d\d?) day|(\d\d?) second|(\d\d?) week/g);
+				var time = tr.exec(timeStr);
+				if( time == null ){
+					return;
+				}
+				var h = parseInt(time[1]),
+					m = parseInt(time[2]),
+					d = parseInt(time[3]),
+					s = parseInt(time[4]),
+					w = parseInt(time[5]);
+				var mins = -1;
+				if( !isNaN(h) ){
+					mins = h * 60;
+				}
+				if( !isNaN(m) ){
+					mins = m;
+				}
+				if( !isNaN(d) ){
+					mins = d * 24 * 60;
+				}
+				if( !isNaN(s) ){
+					mins = s/60;
+				}
+				if( !isNaN(w) ){
+					mins = w * 7 * 24 * 60;
+				}
+				if( sub ){
+					var expDate = new Date( new Date().getTime() - (mins*60*1000) ).getTime();
+				}else{
+					var expDate = new Date( new Date().getTime() + (mins*60*1000) ).getTime();
+				}
+				return expDate;
+			}
 		</script>
 	</head>
-	<body onload="init()">
-		<canvas id="canvas" width="19" height="19"></canvas>    
-		<img id="gfx" src="img/icon_32.png" alt="icon" />
-	</body>
+	<body onload="init()"></body>
 </html>
