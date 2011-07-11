@@ -8,11 +8,11 @@
 		<script type="text/javascript" src="js/jquery.json-2.2.min.js"></script> 
 		<script>
 			// current version
-			var CURRENT_VERSION = "1.0.2";
+			var lastUpdateTime;
 		
 			// work timer
 			var _defaultTimeout = 5 * 60 * 1000; // check every 5 minutes
-			var _timer;
+			//var _timer;
 			
 			// data
 			var _data;
@@ -31,10 +31,17 @@
 				
 				_data = typeof localStorage["data"] == 'undefined' ? [] : $.parseJSON(localStorage["data"]);
 				_savedIDs = typeof localStorage["savedids"] == 'undefined' ? [] : $.parseJSON(localStorage["savedids"]);
-				_timer = setTimeout("checkDeals()", _defaultTimeout);
+				window.setTimeout("checkDeals()", _defaultTimeout);
 				
 				checkDeals();
 			};
+			
+			function resetCounter(){
+				// reset counter
+				localStorage["newcounter"] = 0;
+				chrome.browserAction.setBadgeText({ text: "" });
+				chrome.browserAction.setTitle({ title: "Nothing new yet..\nLast update at "+lastUpdateTime});
+			}
 			
 			function checkDeals(){
 				chrome.browserAction.setBadgeText({ text: "..." });
@@ -102,17 +109,21 @@
 						_data.push(ga);
 					});
 					
+					lastUpdateTime = new Date().toLocaleTimeString();
+					
 					if( _newCounter > 0 ){
 						chrome.browserAction.setBadgeText({ text: String(_newCounter) });
 						chrome.browserAction.setTitle({ title: "New giveaways available!" });
 					}else{
 						chrome.browserAction.setBadgeText({ text: "" });
-						chrome.browserAction.setTitle({ title: "Nothing new yet.." });
+						chrome.browserAction.setTitle({ title: "Nothing new yet..\nLast update at "+lastUpdateTime});
 					}
 					
 					localStorage["data"] = $.toJSON(_data);
 					localStorage["savedids"] = $.toJSON(_savedIDs);
 					localStorage["newcounter"] = _newCounter;
+					
+					window.setTimeout("checkDeals()", _defaultTimeout);
 				});
 			}
 			

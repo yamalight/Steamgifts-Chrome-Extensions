@@ -8,6 +8,7 @@
 		var _data;
 		var _user;
 		var _sortOn = "newest";
+		var backgroundPage = chrome.extension.getBackgroundPage();
 	
 		$(document).ready(function(){		
 			_data = $.parseJSON(localStorage["data"]);
@@ -31,9 +32,7 @@
 			}
 			
 			// reset counter
-			localStorage["newcounter"] = 0;
-			chrome.browserAction.setBadgeText({ text: "" });
-			chrome.browserAction.setTitle({ title: "Nothing new anymore.." });
+			backgroundPage.resetCounter();
 			
 			// render data
 			$( "#gaTemplate" ).tmpl( _data ).appendTo( "#list" );
@@ -61,7 +60,6 @@
 			
 			// refresh
 			$("#refresh").click(function(){
-				var backgroundPage = chrome.extension.getBackgroundPage();
 				backgroundPage.checkDeals();
 				window.close();
 			});
