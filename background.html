@@ -11,7 +11,7 @@
 			var lastUpdateTime;
 		
 			// work timer
-			var _defaultTimeout = 5 * 60 * 1000; // check every 5 minutes
+			var _defaultTimeout = 10 * 60 * 1000; // check every 5 minutes
 			//var _timer;
 			
 			// data
@@ -31,7 +31,7 @@
 				
 				_data = typeof localStorage["data"] == 'undefined' ? [] : $.parseJSON(localStorage["data"]);
 				_savedIDs = typeof localStorage["savedids"] == 'undefined' ? [] : $.parseJSON(localStorage["savedids"]);
-				window.setTimeout("checkDeals()", _defaultTimeout);
+				window.setInterval("checkDeals()", _defaultTimeout);
 				
 				checkDeals();
 			};
@@ -50,6 +50,16 @@
 				// create regex for IDs
 				var idReg = new RegExp("away/(.+?)/");
 				//var unReg = new RegExp("user/(.+)");
+				
+				// clean old deals
+				var timeNow = new Date().getTime();
+				for(var i = 0; i < _data.length; i++){
+					if( _data[i].time_left < timeNow ){
+						_data.splice(i, 1);
+					}
+				}
+				
+				localStorage["data"] = $.toJSON(_data);
 				
 				// get page and parse
 				$.get('http://www.steamgifts.com/new', function(data){				
@@ -123,7 +133,7 @@
 					localStorage["savedids"] = $.toJSON(_savedIDs);
 					localStorage["newcounter"] = _newCounter;
 					
-					window.setTimeout("checkDeals()", _defaultTimeout);
+					//window.setTimeout("checkDeals()", _defaultTimeout);
 				});
 			}
 			

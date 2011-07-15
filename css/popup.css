@@ -4,69 +4,7 @@ html
 {
    /*position: relative;*/
    width: 500px;
-   max-height: 500px;
+   height:500px;
+   max-height: 600px;
    overflow-x: hidden;
-}
-
-body
-{
-   /*overflow: hidden; /*padding-top: 10px;*/
-   font-family: arial, sans-serif;
-   font-size: 0.8em;
-}
-
-.rounded
-{
-   width:90%;
-   border-radius: 6px 0 0 6px;
-   border: 1px solid #bbb; 
-   background-color: White;
-   margin-bottom: 5px;
-   margin-right: 20px;
-}
-
-.padded
-{
-   padding: 2px 4px 2px 4px;
-}
-
-.margin
-{
-   margin-bottom: 5px !important;
-}
-
-
-div.title
-{
-   font-size: 110%;
-   font-weight: bold;
-   float: left;
-   margin-left: 5px;
-}
-
-a
-{
-   text-decoration: none;
-   /*color: #627e9a;*/
-   color: #79B;
-}
-
-a:hover
-{
-   text-decoration: underline;
-}
-
-a.selected{
-   text-decoration: underline;
-}
-
-.sender
-{
-   background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0.1, rgb(245,245,245)), color-stop(0.8, rgb(255,255,255)));
-}
-
-.author
-{
-   font-weight: bold;
-   color: #00681C;
 }

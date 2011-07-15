@@ -1,109 +1,147 @@
+<!DOCTYPE html>
 <html>
-	<link rel="stylesheet" type="text/css" media="screen" href="css/popup.css" />
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" type="text/css" media="screen" href="css/popup.css" />
+		<link rel="stylesheet"  href="jqm/jquery.mobile-1.0b1.min.css" />
+		
+		<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script> 
+		<script type="text/javascript" src="js/jquery.tmpl.min.js"></script> 
+		<script type="text/javascript" src="js/jquery.json-2.2.min.js"></script> 
+		<script src="jqm/jquery.mobile-1.0b1.min.js"></script>
 	
-	<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script> 
-	<script type="text/javascript" src="js/jquery.tmpl.min.js"></script> 
-	<script type="text/javascript" src="js/jquery.json-2.2.min.js"></script> 
-	<script>
-		var _data;
-		var _user;
-		var _sortOn = "newest";
-		var backgroundPage = chrome.extension.getBackgroundPage();
-	
-		$(document).ready(function(){		
-			_data = $.parseJSON(localStorage["data"]);
-			_user = $.parseJSON(localStorage["user"]);
-			
-			// resort
-			if( typeof localStorage['sort'] == 'undefined' ){
-				localStorage['sort'] = _sortOn;
-			}else{
-				_sortOn = localStorage['sort'] ;
-			}
-			if( _sortOn == "ending" ){
-				resortByEnd();
-			}else{
-				resortByNew();
-			}
-			
-			// trim to 20 last
-			if( _data.length > 20 ){
-				_data = _data.slice(0,20);
-			}
-			
-			// reset counter
-			backgroundPage.resetCounter();
-			
-			// render data
-			$( "#gaTemplate" ).tmpl( _data ).appendTo( "#list" );
-			$("#creds").text(_user.points);
-			
-			// set external click handler
-			$("a.external").live('click', function(){
-				chrome.tabs.create({'url': $(this).attr('href')});
-				window.close();
-			});
-			
-			// resort handlers
-			$("#newest").click(function(){
-				resortByNew();
+		<script>
+			var _data;
+			var _user;
+			var _sortOn = "newest";
+			var backgroundPage = chrome.extension.getBackgroundPage();
+		
+			$(document).ready(function(){		
+				_data = $.parseJSON(localStorage["data"]);
+				_user = $.parseJSON(localStorage["user"]);
 				
-				$( "#list" ).empty();
-				$( "#gaTemplate" ).tmpl( _data ).appendTo( "#list" );
-			});
-			$("#ending").click(function(){
-				resortByEnd();
+				// resort
+				if( typeof localStorage['sort'] == 'undefined' ){
+					localStorage['sort'] = _sortOn;
+				}else{
+					_sortOn = localStorage['sort'] ;
+				}
+				if( _sortOn == "ending" ){
+					resortByEnd();
+				}else{
+					resortByNew();
+				}
 				
-				$( "#list" ).empty();
+				// trim to 20 last
+				if( _data.length > 20 ){
+					_data = _data.slice(0,20);
+				}
+				
+				// reset counter
+				backgroundPage.resetCounter();
+				
+				/*var newCount = localStorage["newcounter"];
+				if( newCount > 0 ){
+					console.log('new items: '+newCount);
+					_data[0].newItems = 1;
+					_data[newCount].newItems = -1;
+					console.log(_data[0]);
+					console.log(_data[newCount]);
+				}*/
+				
+				// render data
 				$( "#gaTemplate" ).tmpl( _data ).appendTo( "#list" );
+				$("#creds").text(_user.points);
+				
+				// set external click handler
+				$("a.external").live('click', function(){
+					chrome.tabs.create({'url': $(this).attr('href')});
+					window.close();
+				});
+				
+				// resort handlers
+				$("#slider").change(function(){
+					if( $(this).val() == _sortOn ) return;
+					
+					switch( $(this).val() ){
+						case "newest":
+							resortByNew();
+							break;
+						case "ending":
+							resortByEnd();
+							break;
+					}
+					
+					$( "#list" ).empty();
+					$( "#gaTemplate" ).tmpl( _data ).appendTo( "#list" );
+					$( "#list" ).listview("refresh");
+				});
+				
+				// refresh
+				$("#refresh").click(function(){
+					backgroundPage.checkDeals();
+					window.close();
+				});
+				
 			});
 			
-			// refresh
-			$("#refresh").click(function(){
-				backgroundPage.checkDeals();
-				window.close();
-			});
+			function resortByNew(){
+				_sortOn = localStorage['sort'] = "newest";
 			
-		});
-		
-		function resortByNew(){
-			localStorage['sort'] = "newest";
-		
-			$("#newest").addClass("selected");
-			$("#ending").removeClass("selected");
-		
-			_data = _data.sort(function(a,b){
-				return a.time_created > b.time_created ? -1 : 1	;
-			});
-		}
-		
-		function resortByEnd(){
-			localStorage['sort'] = "ending";
-		
-			$("#ending").addClass("selected");
-			$("#newest").removeClass("selected");
-		
-			_data = _data.sort(function(a,b){
-				return a.time_left > b.time_left ? 1 : -1;
-			});
-		}
-	</script>
-
-	<body>
+				$("#newest").addClass("selected");
+				$("#ending").removeClass("selected");
+			
+				_data = _data.sort(function(a,b){
+					return a.time_created > b.time_created ? -1 : 1	;
+				});
+			}
+			
+			function resortByEnd(){
+				_sortOn = localStorage['sort'] = "ending";
+			
+				$("#ending").addClass("selected");
+				$("#newest").removeClass("selected");
+			
+				_data = _data.sort(function(a,b){
+					return a.time_left > b.time_left ? 1 : -1;
+				});
+			}
+		</script>
+	</head>
+	<body>		
 		<script id="gaTemplate" type="text/x-jquery-tmpl">
-			<div class="rounded padded sender">
-				<h1 style="margin-bottom: 0px; margin-top: 2px;"><a class="external" href="http://www.steamgifts.com${link}">${title}</a> <sup style="font-size:12px;">(${cost})</sup></h1>
-				<span style="font-size: 16px;">Ends: <span>${end_date}</span></span>
-				<div>Created by <a class="external" href="http://www.steamgifts.com${created_by_url}" class="author">${created_by_name}</a>, at ${created_date}</div>
-				<div style="font-size: 11px;">Giveaway has ${entries} and ${comments}.</div>
-			</div>
+			{{if typeof newItems != 'undefined' && newItems == 1}}
+				<li data-role="list-divider">New giveaways</li>
+			{{else typeof newItems != 'undefined' && newItems == -1}}
+				<li data-role="list-divider">Old giveaways</li>
+			{{/if}}
+			<li>
+				<a class="external" href="http://www.steamgifts.com${link}">
+					<h3>${title}</h3>
+					<p class="ui-li-count">${cost}</p>
+					<p>Ends: <strong>${end_date}</strong></p>
+					<p>Created by ${created_by_name}, at ${created_date}</p>
+					<!--<p style="font-size: 11px;">Giveaway has ${entries} and ${comments}.</p>-->
+				</a>
+			</li>
 		</script>
 		
-		<div style="position: absolute; right: 10px; top: 10px; font-size: 10px;">First show: <a href="#" id="newest" class="selected">newest</a> | <a href="#" id="ending">ending soon</a></div>
-		<h1 style="font-size: 16px;">Hi there! You have <b id="creds" class="author"></b>!</h1>
-		<h2 style="font-size:14px;">Here's latest giveaways to spend them: <a href="#" id="refresh" style="font-size: 10px;">[refresh]</a></h2>
-		<div id="list">
-			
+		<div data-role="page">
+			<div data-role="header"> 
+				<h1><a style="color:#FFFFFF; text-decoration:underline;" href="http://www.steamgifts.com/">Steamgifts Home</a> | You have <b id="creds" style="text-decoration:underline;">??C</b>!</h1> 
+			</div> 
+			<div data-role="content">
+				<div data-role="fieldcontain" style="width:100%; text-align:right;">
+					<!-- <label for="slider" style="font-size: 20px;">Sort by:</label> -->
+					<select name="slider" id="slider" data-role="slider">
+						<option value="newest" selected="true">Newest</option>
+						<option value="ending">Ending soon</option>
+					</select> 
+				</div>
+				<div style="position: absolute; top: 2px; right: 2px;"><a href="#" id="refresh" data-role="button" data-icon="refresh" data-iconpos="notext">Refresh</a></div>
+				<ul data-role="listview" data-inset="true"  id="list"  data-count-theme="b">
+				</ul>
+			</div>
 		</div>
 	</body>
 </html>
