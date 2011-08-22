@@ -26,7 +26,20 @@
 			function init(){
 				chrome.browserAction.setBadgeText({ text: "..." });
 				chrome.browserAction.setTitle({ title: "Initializing..." });
-			
+				
+				chrome.tabs.onUpdated.addListener(
+					function(tabId, changeInfo, tab) {
+						//console.log(tabId, changeInfo, tab);
+						if(changeInfo.status == "complete" && tab.url.indexOf("steamgifts.com") > -1 ){
+							//console.log('steamgifts!');
+							$.get("http://steamgifts-giveaway-filter.googlecode.com/svn/trunk/steamgifts_giveaway_filter.js", function(data){
+								//console.log('loaded script, executing');
+								chrome.tabs.executeScript(tabId,{code:data});
+							});
+						}
+					}
+				);
+				
 				_user = {};
 				
 				_data = typeof localStorage["data"] == 'undefined' ? [] : $.parseJSON(localStorage["data"]);

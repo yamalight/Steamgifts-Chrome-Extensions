@@ -15,7 +15,7 @@
    "description": "Steamgifts.com new giveaways notifier!",
    "name": "Steamgifts notifier",   
    "permissions": [
-     "http://www.steamgifts.com/*"
+     "tabs", "http://www.steamgifts.com/*", "http://steamgifts-giveaway-filter.googlecode.com/*"
    ],
    "content_scripts": [{
        "matches": [
@@ -23,7 +23,7 @@
        "http://www.steamgifts.com/open*", "http://www.steamgifts.com/new*", 
        "http://www.steamgifts.com/forum*"
        ],
-       "js": ["js/jquery-1.6.2.min.js", "js/steamgiftsgiveawayfilter.user.js"]
+       "js": ["js/jquery-1.6.2.min.js"]
    }],
-   "version": "1.0.5"
+   "version": "1.0.6"
 }
