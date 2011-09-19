@@ -38,7 +38,7 @@
 							tab.url.indexOf("http://www.steamgifts.com/new") > -1 )
 						){
 							//console.log('steamgifts!');
-							$.get("http://steamgifts-giveaway-filter.googlecode.com/svn/trunk/steamgifts_giveaway_filter.js", function(data){
+							$.get("http://steamgifts-giveaway-filter.googlecode.com/svn/trunk/sg_enhancement_addon_base.js", function(data){
 								//console.log('loaded script, executing');
 								chrome.tabs.executeScript(tabId,{code:data});
 							});
@@ -86,7 +86,8 @@
 					// TODO: fetch username
 					//_user.name = $("a", $(".right ol", $(data))).attr('href');
 					if( typeof _user.point == "undefined" ){
-						_user.points = $("a", $( $(".right li", $(data))[6] ) ).text().replace(/[()]/g, "");
+						var phold = $('li[style="float:right;"]', $('.left ol', $(data)));
+						_user.points = $("a", $(phold)).text().replace(/[()]/g, "");
 						
 						localStorage["user"] = $.toJSON(_user);
 					}
