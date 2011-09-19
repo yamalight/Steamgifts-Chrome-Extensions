@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
   <app appid='imdhnejbmjpjoiogegokoebefjjaiadn'>
-    <updatecheck codebase='https://github.com/downloads/yamalight/Steamgifts-Chrome-Extensions/steamgifts4chrome_v1.0.9.crx' version='1.0.9' />
+    <updatecheck codebase='https://github.com/downloads/yamalight/Steamgifts-Chrome-Extensions/steamgifts4chrome_v1.0.10.crx' version='1.0.10' />
   </app>
 </gupdate>
