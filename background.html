@@ -27,25 +27,6 @@
 				chrome.browserAction.setBadgeText({ text: "..." });
 				chrome.browserAction.setTitle({ title: "Initializing..." });
 				
-				chrome.tabs.onUpdated.addListener(
-					function(tabId, changeInfo, tab) {
-						//console.log(tabId, changeInfo, tab);
-						if( changeInfo.status == "complete" && 
-							( tab.url == "http://www.steamgifts.com/" || 
-							tab.url == "http://www.steamgifts.com/#" || 
-							tab.url.indexOf("http://www.steamgifts.com/open") > -1 || 
-							tab.url.indexOf("http://www.steamgifts.com/forum") > -1 || 
-							tab.url.indexOf("http://www.steamgifts.com/new") > -1 )
-						){
-							//console.log('steamgifts!');
-							$.get("http://steamgifts-giveaway-filter.googlecode.com/svn/trunk/sg_enhancement_addon_base.js", function(data){
-								//console.log('loaded script, executing');
-								chrome.tabs.executeScript(tabId,{code:data});
-							});
-						}
-					}
-				);
-				
 				_user = {};
 				
 				_data = typeof localStorage["data"] == 'undefined' ? [] : $.parseJSON(localStorage["data"]);

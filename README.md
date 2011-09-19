@@ -1,4 +1,7 @@
 This is an extension for Google Chrome browser for SteamGifts.com website.
+# v1.0.10
+- remove zo's script
+
 # v1.0.9
 - fix zo's script loading url
 - fix data extraction for new design

@@ -15,16 +15,8 @@
    "description": "Steamgifts.com new giveaways notifier!",
    "name": "Steamgifts notifier",   
    "permissions": [
-     "tabs", "http://www.steamgifts.com/*", "http://steamgifts-giveaway-filter.googlecode.com/*"
+     "http://www.steamgifts.com/*"
    ],
-   "content_scripts": [{
-       "matches": [
-       "http://www.steamgifts.com/", "http://www.steamgifts.com/#",
-       "http://www.steamgifts.com/open*", "http://www.steamgifts.com/new*", 
-       "http://www.steamgifts.com/forum*"
-       ],
-       "js": ["js/jquery-1.6.2.min.js"]
-   }],
    "update_url": "http://yamalight.github.com/Steamgifts-Chrome-Extensions/update.xml",
-   "version": "1.0.9"
+   "version": "1.0.10"
 }
