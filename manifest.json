@@ -25,5 +25,6 @@
        ],
        "js": ["js/jquery-1.6.2.min.js"]
    }],
-   "version": "1.0.7"
+   "update_url": "http://yamalight.github.com/Steamgifts-Chrome-Extensions/update.xml",
+   "version": "1.0.9"
 }
