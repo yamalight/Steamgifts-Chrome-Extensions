@@ -1,4 +1,6 @@
 This is an extension for Google Chrome browser for SteamGifts.com website.
+
+
 # v1.0.10
 - remove zo's script
 
