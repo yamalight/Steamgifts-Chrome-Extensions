@@ -1,5 +1,6 @@
 This is an extension for Google Chrome browser for SteamGifts.com website.
 
+[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
 
 # v1.0.10
 - remove zo's script
